@@ -59,7 +59,6 @@ def extract_markdown_images(text):
     Extracts images from a markdown string
     """
     return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
-    
 
 def extract_markdown_links(text):
     """
@@ -71,23 +70,66 @@ def split_nodes_image(old_nodes):
     """
     Takes a list of nodes and breaks out any images a node
     """
-    
+    new_nodes = []
+
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        node_text = node.text
+        matches = extract_markdown_images(node_text)
+
+        if matches == []:
+            new_nodes.append(node)
+            continue
+
+        for alt, url in matches:
+            sections = node_text.split(f"![{alt}]({url})", 1)
+            # splits into 2 sections: the first section containing the first textnode and the second section containing the remainder
+            node_text = sections[1]
+            # append the first text node
+            if sections[0] != "":
+                new_nodes.append(TextNode(sections[0], TextType.TEXT))
+            # append the image node
+            new_nodes.append(TextNode(alt, TextType.IMAGE, url))
+
+        if node_text != "":
+            new_nodes.append(TextNode(node_text, TextType.TEXT))
+
+    return new_nodes
+
+        
 
 def split_nodes_link(old_nodes):
     """
     Takes a list of nodes and breaks out any link into a node
     """
-    pass
+    new_nodes = []
 
-def split_node_image(old_node):
-    """
-    Takes a single node and breaks out any images into their own nodes
-    """
-    pass
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
 
-def split_node_link(old_node):
-    """
-    Takes a single node and breaks out any links into their own nodes
-    """
-    pass
+        node_text = node.text
+        matches = extract_markdown_links(node_text)
+
+        if matches == []:
+            new_nodes.append(node)
+            continue
+
+        for alt, url in matches:
+            sections = node_text.split(f"[{alt}]({url})", 1)
+            node_text = sections[1]
+            
+            if sections[0] != "":
+                new_nodes.append(TextNode(sections[0], TextType.TEXT))
+
+            new_nodes.append(TextNode(alt, TextType.LINK, url))
+
+        if node_text != "":
+            new_nodes.append(TextNode(node_text, TextType.TEXT))
+
+    return new_nodes
 
