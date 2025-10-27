@@ -85,12 +85,12 @@ def split_nodes_image(old_nodes):
             continue
 
         for alt, url in matches:
-            sections = node_text.split(f"![{alt}]({url})", 1)
+            pre, post = node_text.split(f"![{alt}]({url})", 1)
             # splits into 2 sections: the first section containing the first textnode and the second section containing the remainder
-            node_text = sections[1]
+            node_text = post
             # append the first text node
-            if sections[0] != "":
-                new_nodes.append(TextNode(sections[0], TextType.TEXT))
+            if pre != "":
+                new_nodes.append(TextNode(pre, TextType.TEXT))
             # append the image node
             new_nodes.append(TextNode(alt, TextType.IMAGE, url))
 
@@ -120,11 +120,11 @@ def split_nodes_link(old_nodes):
             continue
 
         for alt, url in matches:
-            sections = node_text.split(f"[{alt}]({url})", 1)
-            node_text = sections[1]
+            pre, post = node_text.split(f"[{alt}]({url})", 1)
+            node_text = post
             
-            if sections[0] != "":
-                new_nodes.append(TextNode(sections[0], TextType.TEXT))
+            if pre != "":
+                new_nodes.append(TextNode(pre, TextType.TEXT))
 
             new_nodes.append(TextNode(alt, TextType.LINK, url))
 
