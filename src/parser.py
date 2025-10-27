@@ -1,5 +1,6 @@
 from src.nodes.htmlnode import LeafNode
 from src.nodes.textnode import TextNode, TextType
+import re
 
 def text_node_to_html_node(text_node):
     """
@@ -52,3 +53,41 @@ def split_node_delimiter(node, delimiter, text_type):
         if text != "":
             new_nodes.append(TextNode(text, TextType.TEXT if i % 2 == 0 else text_type))
     return new_nodes 
+
+def extract_markdown_images(text):
+    """
+    Extracts images from a markdown string
+    """
+    return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    
+
+def extract_markdown_links(text):
+    """
+    Extracts links from a markdown string
+    """
+    return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    
+def split_nodes_image(old_nodes):
+    """
+    Takes a list of nodes and breaks out any images a node
+    """
+    
+
+def split_nodes_link(old_nodes):
+    """
+    Takes a list of nodes and breaks out any link into a node
+    """
+    pass
+
+def split_node_image(old_node):
+    """
+    Takes a single node and breaks out any images into their own nodes
+    """
+    pass
+
+def split_node_link(old_node):
+    """
+    Takes a single node and breaks out any links into their own nodes
+    """
+    pass
+
