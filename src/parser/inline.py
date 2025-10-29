@@ -1,6 +1,27 @@
+import re
+
 from src.nodes.htmlnode import LeafNode
 from src.nodes.textnode import TextNode, TextType
-import re
+
+def text_to_textnodes(text):
+    """
+    Converts raw text to a textnode
+    """
+    node = TextNode(text, TextType.TEXT)
+    # split **bold** or __bold__
+    nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "__", TextType.BOLD)
+    # split *italics* or _italics_
+    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    # split `code`
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    # split ![image](url)
+    nodes = split_nodes_image(nodes)
+    # split [link](url)
+    nodes = split_nodes_link(nodes)
+
+    return nodes
 
 def text_node_to_html_node(text_node):
     """
@@ -80,7 +101,7 @@ def split_nodes_image(old_nodes):
         node_text = node.text
         matches = extract_markdown_images(node_text)
 
-        if matches == []:
+        if not matches: 
             new_nodes.append(node)
             continue
 
@@ -98,8 +119,6 @@ def split_nodes_image(old_nodes):
             new_nodes.append(TextNode(node_text, TextType.TEXT))
 
     return new_nodes
-
-        
 
 def split_nodes_link(old_nodes):
     """
