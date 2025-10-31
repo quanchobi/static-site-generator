@@ -2,13 +2,14 @@ import unittest
 
 from src.nodes.textnode import TextType, TextNode
 from src.nodes.htmlnode import HTMLNode, LeafNode, ParentNode
+from src.parser.block import BlockType
 
 from src.parser.inline import split_nodes_delimiter
 from src.parser.inline import extract_markdown_images, extract_markdown_links
 from src.parser.inline import split_nodes_link, split_nodes_image
 from src.parser.inline import text_to_textnodes
 
-from src.parser.block import markdown_to_blocks
+from src.parser.block import markdown_to_blocks, block_to_block_type
 
 class TestSplitNodes(unittest.TestCase):
     def test_split_nodes_delimiter_code(self):
@@ -187,5 +188,49 @@ This is the same paragraph on a new line
                 "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
                 "- This is a list\n- with items",
             ],
+        )
+class TestBlockTypes(unittest.TestCase):
+    def test_paragraph(self):
+        testcases = [
+            "# h1",
+
+            "###### h6",
+
+            """
+            ```
+            code
+            ```
+            """,
+
+            """
+            > a
+            > b
+            """,
+
+            """
+            - item 1
+            - item 2
+            """,
+
+            """
+            1. item 1
+            2. item 2
+            """,
+
+            "this is a paragraph"
+        ]
+
+        testcase_results = [block_to_block_type(block.strip()) for block in testcases]
+        self.assertListEqual(
+            testcase_results,
+            [
+                BlockType.HEADING,
+                BlockType.HEADING,
+                BlockType.CODE,
+                BlockType.QUOTE,
+                BlockType.UL,
+                BlockType.OL,
+                BlockType.PARAGRAPH,
+            ]
         )
 
