@@ -1,9 +1,9 @@
 from enum import Enum
 import re
 
-from src.parser.inline import text_to_textnodes, text_node_to_html_node
-from src.nodes.htmlnode import ParentNode
-from src.nodes.textnode import TextNode, TextType
+from parser.inline import text_to_textnodes, text_node_to_html_node
+from nodes.htmlnode import ParentNode
+from nodes.textnode import TextNode, TextType
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
