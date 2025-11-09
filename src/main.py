@@ -4,6 +4,7 @@ from parser.block import markdown_to_html_node
 
 from os import path, mkdir, listdir, makedirs
 from shutil import copy, rmtree
+from sys import argv
 
 def extract_title(markdown):
     """
@@ -17,7 +18,7 @@ def extract_title(markdown):
 
     return first_line.strip("#").strip()
 
-def generate_pages_recursive(src, template_path, dest):
+def generate_pages_recursive(src, template_path, dest, basepath="/"):
     """
     crawls through the directory dir, taking any markdown files and generating a page with them.
     If it encounters a directory in dir, it recursively searches it for markdown files
@@ -34,12 +35,12 @@ def generate_pages_recursive(src, template_path, dest):
         new_dest = path.join(dest, file)
         if path.isfile(new_src) and new_src.endswith(".md"):
             new_dest = new_dest.rstrip(".md") + ".html"
-            generate_page(new_src, template_path, new_dest)
+            generate_page(new_src, template_path, new_dest, basepath)
 
         elif path.isdir(new_src):
-            generate_pages_recursive(new_src, template_path, new_dest)
+            generate_pages_recursive(new_src, template_path, new_dest, basepath)
 
-def generate_page(src, template_path, dest):
+def generate_page(src, template_path, dest, basepath):
     """
     Generate page from src path to dest path using the html template at template_path
     """
@@ -61,6 +62,8 @@ def generate_page(src, template_path, dest):
 
     content = content.replace("{{ Title }}", extract_title(markdown))
     content = content.replace("{{ Content }}", markdown_to_html_node(markdown).to_html())
+    content = content.replace("href=\"/", f"href=\"{basepath}")
+    content = content.replace("src=\"/", f"src=\"{basepath}")
 
     parent_path = "/".join(dest.split("/")[:-1])
     if not path.exists(parent_path):
@@ -95,8 +98,16 @@ def publish(src="static", dest="public"):
             publish(src_fp, dest_fp)
 
 def main():
+    argc = len(argv)
+    if argc < 2:
+        basepath = "/"
+    elif argc == 2:
+        basepath = argv[1]
+    else:
+        raise ValueError("Only accepts 0 or 1 arguments")
+
     publish()
-    generate_pages_recursive("content", "layouts/template.html", "public")
+    generate_pages_recursive("content", "layouts/template.html", "docs", basepath)
 
 if __name__ == "__main__":
     main()
