@@ -97,7 +97,7 @@ def heading_to_html_node(block):
         raise ValueError("Invalid header block")
 
     block = block.strip("#").strip()
-    chlidren = text_to_children(block)
+    children = text_to_children(block)
     return ParentNode(f"h{i}", children)
 
 def code_to_html_node(block):
@@ -142,16 +142,16 @@ def ul_to_html_node(block):
 
 def ol_to_html_node(block):
     lines = block.split("\n")
-    if not all(line[0].isalpha() for line in lines):
+    if not all(line[0].isnumeric() for line in lines):
         raise ValueError("Invalid ordered list")
 
     # remove number and whitespace from entries
-    lines = [line.lstrip(f"{i}.").strip() for i, line in enumerate(lines)]
+    lines = [line.lstrip(f"{i+1}.").strip() for i, line in enumerate(lines)]
 
     line_nodes = []
     for line in lines:
         line_node_children = text_to_children(line)
-        line_nodes.append(ParentNode("li"), line_node_children)
+        line_nodes.append(ParentNode("li", line_node_children))
 
     return ParentNode("ol", line_nodes)
     
