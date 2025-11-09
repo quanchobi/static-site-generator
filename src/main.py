@@ -106,7 +106,7 @@ def main():
     else:
         raise ValueError("Only accepts 0 or 1 arguments")
 
-    publish()
+    publish("static", "docs")
     generate_pages_recursive("content", "layouts/template.html", "docs", basepath)
 
 if __name__ == "__main__":
